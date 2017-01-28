@@ -1,0 +1,28 @@
+Header
+File Table
+FileData
+
+Header            | Total Size: 0x80
+------------------------------------
+FileCount         | Size: 0x4
+Archive Size      | Size: 0x4
+Padding           | Size: 0x78
+
+
+File Table  Total | Size: NumFiles*0x80
+---------------------------------------
+File Name         | Size: 0x16
+???               | Size: 0x2         ;Depacker treats this as part of the file name?  Changes on each file
+Offset To File    | Size: 0x4         ;From Archive Start
+Size in Archive   | Size: 0x4
+Uncompressed Size | Size: 0x4         ;If file is a compressed stream these will differ. 
+Padding           | Size 0x5C
+
+FileData          | Total Size:  ArchiveSize-FileTable-Header
+Appended to the table is the stream of all assets marked out by earlier files. 
+
+
+
+
+
+
