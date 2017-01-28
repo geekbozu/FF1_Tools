@@ -25,7 +25,5 @@ pckunpack.py FILETOUNPACK "FOLDER\TO\UNPACK\TO"
 Decompression has been tested most visual assets are compressed and have been
 succsessfully been able to extract images. 
 
-Packing of DPK/PCK files still needs work. There is a WORD missing from the
-PCK file structure that I do not know what is nor have I put the time in with
-a debugger to figure out. 
+Packing of DPK/PCK files still needs work. There is a 0x2 byte field in the file structure that I do not know what is nor have I put the time in with a debugger to figure out. Currently the depacker prepends it to the file name. 
 
