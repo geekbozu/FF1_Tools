@@ -13,9 +13,16 @@ funky game doesnt crash but fails to load assets?
 Unpacks PCK files, Requires WP16.exe to decompress files
 
 ##wp16.c WP16.exe
-decompressor used by this version of ff1 as well as the psp version, Code was
-found on a forum somewhere back when this started. Credits to the author for
-the algorithm.
+decompressor used by this version of ff1 as well as the psp version, Written by FireFly over at zenhax
+
+
+
+###Extra info
+Most of this information has been gleamed from this thread over at zenhax
+http://zenhax.com/viewtopic.php?f=9&t=2165&sid=d08c3c0149863fdfab87d25b2c42bc09
+eientei95's and firefly's code for the psp port of this really helped this get started.
+They really did most of the work that has been done so far. I just re-implemented in python for ease of development. 
+
 
 
 #USE
