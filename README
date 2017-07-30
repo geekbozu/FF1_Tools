@@ -96,7 +96,14 @@ tools/Wp16e.dll
     The compiled functions for everything this project needs and uses.
 tools/wp16e_docs.TXT
     A function call cheatsheet if you don't want to open the source.
-  
+
+____________________
+--:: References ::--
+Invaluable information from a spanish forum regarding the PSP port of the game.
+  Formats used are pretty much identical
+    http://romxhack.esforos.com/empaquetamiento-en-final-fantasy-1-de-psp-t50
+    http://romxhack.esforos.com/lzss-para-tontos-aunque-habra-quien-siga-sin-enterarse-t14
+    http://romxhack.esforos.com/compresion-de-final-fantasy-1-de-psp-la-famosa-wp16-t44
 _________________________
 --:: VERSION HISTORY ::--
 
@@ -110,7 +117,8 @@ _________________________
        in cases where the actual console I/O bottlenecks the script.
 0.93 - Fixed file padding problem. If the game cares about file sizes being
        padded too, there will definitely be a v0.94 to fix that.
-
+0.94 - Fixed outputting the wrong size at the start of a compressed WP16 
+       archive causing the decompressor to not output full files
 
 
 
