@@ -1,0 +1,116 @@
+FF1 3DS .DPK Unpackager/Repackager Tool
+#----------------------------------------------------------------------------#
+_______________
+--:: ABOUT ::--
+
+idk what to say here. Geekboy1011 asked me to do this
+and I kinda ran away with it. It looked fun to do.
+
+It unpackages the .dpk files that he says is found in FF1 (3DS) ROMs and
+repackages them using the (roughly) same compression scheme that was used
+to package these files to begin with.
+
+_______________
+--:: USAGE ::--
+
+Python 2.7.x is required to run this packager.
+Download and install it if you have not already.
+
+DO NOT attempt to use Python 3.x.
+Monkeys and exploding grape biscuits will fly
+from your monitor and assault you if you try.
+_____________
+ To unpack:
+
+repacker.py input_file output_folder
+
+   input_file: Name of the package file you want to unpack
+output_folder: Path to the folder where the unpacked files go.
+               This directory must already exist before you start.
+               Make sure this directory is either empty or contains nothing
+               that doesn't belong in the package you're extracting.
+           -q: Silences the console output so that only the end result
+               shows in the command-line window.
+_____________
+ To repack:
+
+repacker.py input_folder output_file -r [-f] [-n]
+
+input_folder: Path to the folder that contains all the
+              package files and folders.
+ output_file: Name of the file where all the packed stuff goes
+          -r: You gotta add this to get the repacker to work in
+              repackage mode. Otherwise silly things happen.
+          -f: Add this switch to repackage using a significantly
+              faster but less effective compression method.
+          -n: Add this switch to skip compression altogether for
+              repackaging purposes. -f will be ignored in this case.
+          -q: Silences the console output so that only the end result
+              shows in the command-line window.
+              
+_______________
+--:: NOTES ::--
+
+* The FILE NAMES of the unpacked files are very important and MUST NOT CHANGE.
+* The FOLDER NAMES are also very important and MUST NOT CHANGE.
+* The repackager will choke on files that doesn't belong in the package.
+
+* The "fast compression" method pretty much shrinks the LZ search window from
+  2047 to 33. Probably should've reduced it to 1 to effectively make it a
+  crappy RLE compressor, but meh. Unless I'm bombarded with complaints,
+  I won't care.
+* The DLL was built in Code::Blocks. It was fun.
+* Everything I know about calling DLLs is found in Python's ctypes
+  documentation and the example code I found with aPLib.
+* I use DLLs in the Python script instead of calling EXEs since doing so
+  removes the overhead of loading and passing args into the EXE on each
+  invocation. The performance boost is like the diff between night and day.
+
+_______________
+--:: FILES ::--
+
+DOCS
+    Has .DPK file structure documentation. Contact me if anything is wrong
+    about it since that's what this whole project is based on.
+LICENSE
+    The MIT License. Geekboy1011 told me it'll help protect my
+    IP rights while still being able to share freely.
+README
+    The thing you're reading right now.
+repacker.py
+    The thing you downloaded this whole package for.
+tools/_test.py
+    Contains demonstration code for using Wp16e.dll
+tools/libWP16e.a
+    idk what's in here. Code::Blocks spat it out when it compiled my DLL.
+tools/libWp16e.def
+    Looks like labels for exported functions. Code::Blocks spat it out too.
+tools/WP16.py
+    Contains a pure Python implementation of the Wp16 algorithm.
+    The decompressor is fairly quick.
+    Sending the file over dialup is faster than compressing it by itself.
+tools/wp16e.c
+    (Most of) the source for the DLL. It's up to you to figure out how to
+    compile it. The core of it is still there...
+tools/Wp16e.dll
+    The compiled functions for everything this project needs and uses.
+tools/wp16e_docs.TXT
+    A function call cheatsheet if you don't want to open the source.
+  
+_________________________
+--:: VERSION HISTORY ::--
+
+0.90 - It seems to work. It can recursively unpack and repack and supports
+       fast, if less efficient, compression for testing purposes.
+       But the real test is to see if what it repacks actually runs on
+       hardware. And I don't own the test rig.
+0.91 - The game loads but nothing works right. This version adds a
+       NO_COMPRESS (-n) option to see if my (de)compression is faulty.
+0.92 - No real progress, but added a "quiet" mode to speed up the process
+       in cases where the actual console I/O bottlenecks the script.
+0.93 - Fixed file padding problem. If the game cares about file sizes being
+       padded too, there will definitely be a v0.94 to fix that.
+
+
+
+

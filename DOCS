@@ -1,0 +1,111 @@
+FF1 (3DS) File structure, as I've pieced together from other docs
+#=============================================================================
+
+As I'm going off of what I'm seeing in the hex editor versus what I'm seeing
+in other documentation (some of which isn't in English), this seems to be
+what it is.
+
+Let us call the entire file a "PACKAGE". Each PACKAGE contains the following:
+
+1. Header
+2. File descriptors
+3. Data
+
+-----------------------------------------------------------------------------
+1. Header     (128)
+0x00 - 0x03 (4)   : Number of files (and file descriptors)
+0x04 - 0x07 (4)   : Size of PACKAGE (headers and descriptors included)
+0x08 - 0x7F (120) : Zero-padding
+
+-----------------------------------------------------------------------------
+2. Descriptor (128) * Number of files
+0x00 - 0x15 (22)  : File name (zero-padded, char array)
+0x16 - 0x17 (2)   : File serial number/ID (*)
+0x18 - 0x1B (4)   : Offset to file (from PACKAGE start)
+0x1C - 0x1F (4)   : Size of file in archive
+0x20 - 0x23 (4)   : Size of uncompressed file (**)
+0x24 - 0x7F (92)  : Zero-padding.
+
+*  I don't actually know what these two bytes do but the game throws a fit
+   if they aren't preserved AS-IS, so I put that in as part of the
+   filename to reconstruct later on.
+
+** File size and uncompressed size will match if the file is not compressed
+   They will disagree if the data is compressed. 
+
+-----------------------------------------------------------------------------
+3. Data
+   
+   All data in the package must be zero-padded such that its start aligns to
+   every 0x80 boundary/offset. Usually, this is accomplished by putting that
+   padding at the end of the file.
+   
+   THIS PADDING IS NOT REFLECTED IN THE FILE SIZE ASSOCIATED WITH THE DATA
+   ITSELF, BUT IT IS REFLECTED IN THE TOTAL ARCHIVE SIZE.
+
+   Besides that, the data can contain one of three things:
+   
+a. A PACKAGE file. If you read where the size bytes of the PACKAGE would be
+   and find that the number agrees with the size obtained from the size of
+   the uncompressed file, then odds are that it's a PACKAGE. Its contents
+   ought to go in its own folder and its contents read in a recursive manner.
+
+b. A Wp16 compressed archive. Could be hiding a PACKAGE inside.
+   The first 4 bytes will read "Wp16" [0x57,0x70,0x31,0x36]
+   The next  4 bytes will be the size of the uncompressed archive, these
+   eight header bytes included.
+   The data thereafter conforms to a LZSS compression scheme formatted using
+   34 uint16_t-sized little-endian chunks of data (hereafter called WORDs):
+      The first two WORDs form a single uint32_t-sized number consisting of
+      one bit flags read in little-endian order which indicates what each of
+      the next 32 WORDs means.
+
+        If the bit = 1, the WORD is a literal, and is transcribed to the
+        output buffer AS-IS.
+
+        If the bit = 0, the WORD is a codeword formatted [dddddddd dddccccc]
+        (most significant to least significant bits), where:
+        d = displacement (back reference) from the head of the output buffer
+        c = (count - 2) WORDS to copy moving forward.
+        Note: count - 2 because it takes at least two codewords to achieve
+              any kind of compression, so why encode values that don't provide 
+              compression? This way, we can encode count 2-33 instead of 0-31.
+        Ex 1: d=5 & c=3, means to copy the previous 5 WORDs (10 bytes)
+        Ex 2: d=2 & c=0, means to copy the previous 2 WORDs (4 bytes)
+        Ex 3: d=100 c=5, means to copy the 7 WORDs (14 bytes) starting at
+              100 WORDs ago. Note that if this coincides to a position prior
+              to the start of the file, it is assumed to be zero-filled
+              since decompression history is stored in a zero-initialized
+              circular buffer 2048 WORDs wide. That one tripped me up.
+
+c. Data we don't care about. If the magic bytes isn't "Wp16" nor does the
+   supposed size field match up with uncompressed file size, then we can
+   emit the file as-is. We've done our duty.
+
+-----------------------------------------------------------------------------
+The PACKAGE itself:
+
+From external tests, the game crashes if the PACKAGE exceeds a certain
+archive size. We don't know fully know why but it seems the game makes
+certain assumptions about file sizes that falls apart in an explosive way
+should they ever be violated.
+
+What this means is that we can't leave things uncompressed or,
+heavens forbid, "dummy compress" it to force the decompressor to work on
+something that literally was not compressed (but was expanded. Ew.) so
+I had to write a compression routine to do the job. Somewhere there should
+be an implementation in both Python and C attached. Someplace. I'll leave it
+up to the user to figure out how to pull together and use all of this.
+
+Know that the Python compression routine is slower than molasses in a
+freezer. It would almost be faster to transmit the uncompressed data
+over dialup if the data compresses well.
+
+If it doesn't? Go make a sandwich. You'll have time :P
+
+Yeah.
+
+Best regards,
+
+"Iambian"
+

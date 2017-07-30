@@ -1,0 +1,6 @@
+EXPORTS
+    DllMain@12 @1
+    compress @2
+    decompress @3
+    get_decomp_size @4
+    get_max_compressed_size @5

@@ -1,0 +1,37 @@
+//Function call docs:
+//Note: ALL mentions of sizes are in uint16_t-sized objects
+//      unless stated otherwise. If you need these in bytes,
+//      do the appropriate math.
+
+typedef uint16_t u16
+
+int get_max_compressed_size(int in_buffer_size);
+  return max_comp_size;
+
+int compress(u16 *in_buffer, int in_buffer_size, u16 *out_buffer, int fastmode);
+  return size_of_compressed_array;  //No headers
+
+int get_decomp_size(u16 *in_buf, int in_buf_size, int offset_to_data);
+  return size_of_decompressed_file;
+
+int decompress(u16 *in_buf, int in_buf_size, u16 *out_buf, int offset_to_data);
+  return 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
