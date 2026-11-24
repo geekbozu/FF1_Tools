@@ -157,7 +157,7 @@ def decompress(inarray):
     return
   a = inarray[4:8]
   print [format(i,'02x') for i in a]
-  fsize = a[0]+a[1]*256+a[2]*65535+a[3]*16777216
+  fsize = a[0]+a[1]*256+a[2]*65536+a[3]*16777216
   # -- Arbitrary safeguard to prevent ridiculous values
   if fsize>2**30:
     print "Warning/Error: Output size exceeds 1GB. Possible encode error."

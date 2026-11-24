@@ -29,6 +29,9 @@ Let us call the entire file a "PACKAGE". Each PACKAGE contains the following:
 *  I don't actually know what these two bytes do but the game throws a fit
    if they aren't preserved AS-IS, so I put that in as part of the
    filename to reconstruct later on.
+   In the PSP release this is the sum of the file name's character codes,
+   and the descriptors are sorted by it in ascending order (several names
+   can share a value). See section 4.
 
 ** File size and uncompressed size will match if the file is not compressed
    They will disagree if the data is compressed. 
@@ -52,8 +55,10 @@ a. A PACKAGE file. If you read where the size bytes of the PACKAGE would be
 
 b. A Wp16 compressed archive. Could be hiding a PACKAGE inside.
    The first 4 bytes will read "Wp16" [0x57,0x70,0x31,0x36]
-   The next  4 bytes will be the size of the uncompressed archive, these
-   eight header bytes included.
+   The next  4 bytes will be the size of the uncompressed data. The eight
+   header bytes are NOT included: the repacker (since 0.94) and
+   tools/WP16.py already treat it this way, and in the PSP release the
+   word equals the descriptor's uncompressed size for every Wp16 file.
    The data thereafter conforms to a LZSS compression scheme formatted using
    34 uint16_t-sized little-endian chunks of data (hereafter called WORDs):
       The first two WORDs form a single uint32_t-sized number consisting of
@@ -81,6 +86,33 @@ b. A Wp16 compressed archive. Could be hiding a PACKAGE inside.
 c. Data we don't care about. If the magic bytes isn't "Wp16" nor does the
    supposed size field match up with uncompressed file size, then we can
    emit the file as-is. We've done our duty.
+
+-----------------------------------------------------------------------------
+4. PSP release (ff1psp.dpk)
+
+The PSP release uses the same fields in the same order, without the
+padding. This applies to the .dpk and to the .PCK packages inside it.
+
+Header (16)
+0x00 - 0x03 (4)   : Number of files (and file descriptors)
+0x04 - 0x07 (4)   : Size of PACKAGE (headers and descriptors included)
+0x08 - 0x0F (8)   : Zero-padding
+
+Descriptor (36) * Number of files, directly after the header
+0x00 - 0x15 (22)  : File name (zero-padded, char array)
+0x16 - 0x17 (2)   : Sum of the file name's character codes
+0x18 - 0x1B (4)   : Offset to file (from PACKAGE start)
+0x1C - 0x1F (4)   : Size of file in archive
+0x20 - 0x23 (4)   : Size of uncompressed file
+
+Descriptors are sorted by the name sum, not by offset. File data starts
+on a 16-byte boundary (0x80 is not required). Files inside a .PCK can be
+Wp16 compressed too.
+
+Checked against the USA ff1psp.dpk: 2033 files, every name sum and the
+sort order match, all 1917 Wp16 files unpack to exactly their size word,
+and all 1960 .PCK files parse with this layout (7422 files inside them,
+202 of those Wp16 compressed).
 
 -----------------------------------------------------------------------------
 The PACKAGE itself:
